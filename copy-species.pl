@@ -10,6 +10,7 @@ $, =",\t";
 my $current = shift @ARGV || '.';
 binmode(STDOUT, ":utf8");
 
+#Search for dirs (= species names) under Sel subdirs and copy them to $current/ALL/speciesname
 
 
 #my %files = map {s/[^0-9]+(?=\.)//; ($_ => 1)} grep {/\.jpg/i} grep { -f $_} readdir DIR;
@@ -53,68 +54,23 @@ sub copy_dirs{
           }
         }
       }elsif(!$err){
-       #print "copy $dir/$species to $new";
-       eval{
-        opendir DIR, "$dir/$species" or die qq|"Não foi possivel abrir o directorio $dir/$species"| ;
-        my @files = map {decode("utf8",$_)} grep {/\.jpg$/i} readdir DIR;
-        my $base = substr $dir, 1 + length $current;
-        $base =~ s/\//_/g;
-        foreach my $file (@files){
-          my $name = "${base}_$file";
-          -e "$new/$name" or eval {
-            copy "$dir/$species/$file", "$new/$name";
-            print "copy $dir/$species/$file to $new/$name";
-          };
-        }
-       }
+        #print "copy $dir/$species to $new";
+        eval{
+          opendir DIR, "$dir/$species" or die qq|"Não foi possivel abrir o directorio $dir/$species"| ;
+          my @files = map {decode("utf8",$_)} grep {/\.jpg$/i} readdir DIR;
+          my $base = substr $dir, 1 + length $current;
+          $base =~ s/\//_/g;
+          foreach my $file (@files){
+            my $name = "${base}_$file";
+            -e "$new/$name" or eval {
+              copy "$dir/$species/$file", "$new/$name";
+              print "copy $dir/$species/$file to $new/$name";
+            };
+          }
+        };
       }
     }
   };
 }
 
 search_dir($current);
-
-
-
-
-# use strict;
-# use File::Copy;
-# use File::Path;	
-# $\ = "\n";
-# $, ="\t=>\t";
-# my $dir = shift @ARGV || '.';
-# my $orig = "$dir/../../original";
-
-# opendir DIR, $dir or warn qq|'Não foi possivel abrir o directorio corrente'|;
-
-# #my %files = map {s/[^0-9]+(?=\.)//; ($_ => 1)} grep {/\.jpg/i} grep { -f $_} readdir DIR;
-# my %files = map {s/[^0-9]+(?=\.)//; ($_ => 1)} grep {/\.jpg$/i} readdir DIR;
-# my $err;
-# -d $orig or mkpath($orig, {
-# 	verbose => 3,
-# 	error => \$err,
-# });
-
-# if ($err and @$err) {
-# 	for my $diag (@$err) {
-# 		my ($file, $message) = %$diag;
-# 		if ($file eq '') {
-# 			print "Erro: $message\n";
-# 		}else {
-# 			print "Problemas ao criar o directório $file: $message\n";
-# 		}
-# 	}
-# }
-
-# foreach (keys %files){
-# 	my $f1 = "$dir/../../$_";
-# 	my $f2 = $f1;
-# 	my $d1 = "$orig/$_";
-# 	print qq|$f1 => $d1|;
-# 	move($f1,$d1);
-# 	$f2 =~ s/\.jpg$/\.NEF/i;
-# 	my $d2 = $d1;
-# 	$d2 =~ s/\.jpg$/\.NEF/i;
-# 	print qq|$f2 => $d2|;
-# 	move($f2, $d2);
-# }
